@@ -1,0 +1,114 @@
+# Local CyberEpi laboratory.
+# Development passwords below are placeholders. Override them before any shared deployment.
+
+services:
+  traefik:
+    image: traefik:v3.3
+    command:
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: cyberepi
+      POSTGRES_PASSWORD: ${CYBEREPI_DB_PASSWORD:-cyberepi}
+      POSTGRES_DB: cyberepi
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cyberepi"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  nats:
+    image: nats:2.11-alpine
+    command: ["-js", "-sd", "/data", "-m", "8222"]
+    volumes:
+      - nats-data:/data
+
+  controller:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgres://cyberepi:${CYBEREPI_DB_PASSWORD:-cyberepi}@postgres:5432/cyberepi
+      NATS_URL: nats://nats:4222
+      CYBEREPI_BIND: 0.0.0.0:8080
+      CYBEREPI_BOOTSTRAP_USER: ${CYBEREPI_BOOTSTRAP_USER:-admin}
+      CYBEREPI_BOOTSTRAP_PASSWORD: ${CYBEREPI_BOOTSTRAP_PASSWORD:-cyberepi-dev}
+      CYBEREPI_BATCH_SIZE: "25"
+      RUST_LOG: info
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_started
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.cyberepi-api.rule=PathPrefix(`/api`) || PathPrefix(`/metrics`) || PathPrefix(`/healthz`)
+      - traefik.http.services.cyberepi-api.loadbalancer.server.port=8080
+      - traefik.http.routers.cyberepi-api.priority=100
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["cyberepi-worker"]
+    environment:
+      DATABASE_URL: postgres://cyberepi:${CYBEREPI_DB_PASSWORD:-cyberepi}@postgres:5432/cyberepi
+      NATS_URL: nats://nats:4222
+      CYBEREPI_METRICS_BIND: 0.0.0.0:9102
+      RUST_LOG: info
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_started
+      controller:
+        condition: service_started
+
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    environment:
+      HOSTNAME: 0.0.0.0
+    depends_on:
+      - controller
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.cyberepi-web.rule=PathPrefix(`/`)
+      - traefik.http.services.cyberepi-web.loadbalancer.server.port=3000
+      - traefik.http.routers.cyberepi-web.priority=1
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    profiles: ["observe"]
+    volumes:
+      - ./deployments/docker-compose/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:11.3.1
+    profiles: ["observe"]
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "3001:3000"
+
+volumes:
+  postgres-data:
+  nats-data:

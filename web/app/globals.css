@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Fraunces", "Iowan Old Style", Palatino, serif;
+  --font-sans: "IBM Plex Sans", "Avenir Next", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --color-paper: #f3efe6;
+  --color-ink: #1c1914;
+  --color-muted: #6d675e;
+  --color-line: #d9d1c3;
+  --color-signal: #b8432f;
+  --color-exposed: #b86a1a;
+  --color-recovered: #1f7a4d;
+  --color-protected: #1d4e89;
+  --color-detected: #7a4a12;
+}
+
+html, body { background: var(--color-paper); color: var(--color-ink); }
+body { font-family: var(--font-sans); }
+h1, h2, .figure { font-family: var(--font-serif); font-weight: 560; letter-spacing: -0.03em; }
+.figure { font-variant-numeric: lining-nums; }

@@ -1,0 +1,18 @@
+[package]
+name = "epi-models"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+epi-core.workspace = true
+epi-graph.workspace = true
+epi-pathogens.workspace = true
+epi-controls.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+
+[lints]
+workspace = true

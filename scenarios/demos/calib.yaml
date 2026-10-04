@@ -1,0 +1,23 @@
+apiVersion: cyberepi.io/v1
+kind: Scenario
+metadata:
+  name: calibration
+population:
+  template: medium-enterprise
+  size: 2000
+  seed: 7
+  name: Calibration Org
+pathogen:
+  type: IdentityStealer
+initial_conditions:
+  infected_entities: 1
+  strategy: random
+model: seidqrp
+controls: {}
+simulation:
+  algorithm: gillespie
+  duration: 7d
+  runs: 40
+  seed: 123456
+  event_mode: summary
+  sample_interval: 2h

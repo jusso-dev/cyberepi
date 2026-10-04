@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cyberepi.io/schemas/scenario.json",
+  "title": "CyberEpi Scenario",
+  "type": "object",
+  "required": ["apiVersion", "kind", "metadata", "population", "pathogen", "simulation"],
+  "properties": {
+    "apiVersion": { "const": "cyberepi.io/v1" },
+    "kind": { "const": "Scenario" },
+    "metadata": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "population": {
+      "type": "object",
+      "required": ["template", "size"],
+      "properties": {
+        "template": { "type": "string" },
+        "size": { "type": "integer", "minimum": 32, "maximum": 1000000 },
+        "seed": { "type": "integer", "minimum": 0 },
+        "name": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "pathogen": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "initial_conditions": {
+      "type": "object",
+      "properties": {
+        "infected_entities": { "type": "integer", "minimum": 1 },
+        "strategy": { "type": "string", "enum": ["random", "targeted"] }
+      },
+      "additionalProperties": false
+    },
+    "model": { "type": "string", "enum": ["sis", "sir", "seir", "seirs", "seidqrp"] },
+    "controls": { "type": "object" },
+    "defender": {
+      "type": "object",
+      "properties": {
+        "policy": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "simulation": {
+      "type": "object",
+      "required": ["duration", "runs", "seed"],
+      "properties": {
+        "algorithm": { "type": "string" },
+        "transmission": { "type": "string" },
+        "duration": { "type": "string" },
+        "runs": { "type": "integer", "minimum": 1 },
+        "seed": { "type": "integer", "minimum": 0 },
+        "event_mode": { "type": "string" },
+        "sample_interval": { "type": "string" },
+        "dt": { "type": "string" },
+        "threads": { "type": "integer", "minimum": 1 },
+        "extinction_threshold_fraction": { "type": "number", "minimum": 0, "maximum": 1 },
+        "detection_delay": { "type": "string" },
+        "isolation_delay": { "type": "string" },
+        "recovery_time": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "variants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "controls": { "type": "object" },
+          "policy": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

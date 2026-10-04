@@ -1,0 +1,31 @@
+[package]
+name = "epi-simulator"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+epi-core.workspace = true
+epi-graph.workspace = true
+epi-models.workspace = true
+epi-metrics.workspace = true
+rand.workspace = true
+rand_chacha.workspace = true
+rayon.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+epi-pathogens = { workspace = true }
+epi-controls = { workspace = true }
+epi-generator = { workspace = true }
+
+[[bench]]
+name = "scale"
+harness = false
+
+[lints]
+workspace = true

@@ -1,0 +1,14 @@
+CyberEpi is installing into namespace {{ .Release.Namespace }}.
+
+The infrastructure cluster and the simulated population are different things.
+
+Open the laboratory:
+  http://{{ .Values.ingress.host }}/
+
+Retrieve the local administrator password:
+  kubectl get secret {{ include "cyberepi.fullname" . }}-auth -n {{ .Release.Namespace }} -o jsonpath='{.data.password}' | base64 -d; echo
+
+Worker replicas: {{ .Values.worker.replicas }}
+HPA enabled: {{ .Values.hpa.enabled }}
+
+Built-in control numbers are illustrative simulation assumptions.

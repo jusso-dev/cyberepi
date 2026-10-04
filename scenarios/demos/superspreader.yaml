@@ -1,0 +1,22 @@
+apiVersion: cyberepi.io/v1
+kind: Scenario
+metadata:
+  name: superspreader-analysis
+  description: Rank synthetic hubs such as CI identities and cluster admins.
+population:
+  template: software-company
+  size: 900
+  seed: 21
+  name: Synthetic Software Company
+pathogen:
+  type: SupplyChain
+initial_conditions:
+  infected_entities: 1
+  strategy: random
+model: seidqrp
+controls: {}
+simulation:
+  algorithm: gillespie
+  duration: 7d
+  runs: 80
+  seed: 21

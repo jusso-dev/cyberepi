@@ -1,0 +1,15 @@
+[package]
+name = "epi-graph"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+epi-core.workspace = true
+petgraph.workspace = true
+serde.workspace = true
+
+[lints]
+workspace = true

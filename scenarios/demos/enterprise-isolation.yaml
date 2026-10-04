@@ -1,0 +1,43 @@
+apiVersion: cyberepi.io/v1
+kind: Scenario
+metadata:
+  name: enterprise-rapid-propagation
+  description: Compare illustrative isolation delays on a synthetic enterprise.
+population:
+  template: large-enterprise
+  size: 1500
+  seed: 19
+  name: Synthetic Large Enterprise
+pathogen:
+  type: RapidWorm
+initial_conditions:
+  infected_entities: 1
+  strategy: random
+model: seidqrp
+controls: {}
+simulation:
+  algorithm: gillespie
+  duration: 5d
+  runs: 100
+  seed: 77
+variants:
+  - name: Isolation 15m
+    controls:
+      rapid_isolation:
+        coverage: 1
+        isolation_delay: 15m
+  - name: Isolation 1h
+    controls:
+      rapid_isolation:
+        coverage: 1
+        isolation_delay: 1h
+  - name: Isolation 4h
+    controls:
+      rapid_isolation:
+        coverage: 1
+        isolation_delay: 4h
+  - name: Isolation 24h
+    controls:
+      rapid_isolation:
+        coverage: 1
+        isolation_delay: 24h

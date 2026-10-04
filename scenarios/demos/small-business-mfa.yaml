@@ -1,0 +1,40 @@
+apiVersion: cyberepi.io/v1
+kind: Scenario
+metadata:
+  name: small-business-identity-outbreak
+  description: Compare illustrative MFA coverage on a synthetic small business.
+population:
+  template: small-business
+  size: 800
+  seed: 11
+  name: Synthetic Small Business
+pathogen:
+  type: IdentityStealer
+initial_conditions:
+  infected_entities: 1
+  strategy: random
+model: seidqrp
+controls: {}
+defender:
+  policy: no-response
+simulation:
+  algorithm: gillespie
+  duration: 7d
+  runs: 200
+  seed: 42
+  event_mode: summary
+variants:
+  - name: No MFA
+    controls: {}
+  - name: 50% MFA
+    controls:
+      mfa:
+        coverage: 0.50
+  - name: 90% MFA
+    controls:
+      mfa:
+        coverage: 0.90
+  - name: 100% MFA
+    controls:
+      mfa:
+        coverage: 1.0

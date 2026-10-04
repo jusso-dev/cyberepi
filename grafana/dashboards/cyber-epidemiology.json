@@ -1,0 +1,14 @@
+{
+  "uid": "cyberepi-epi",
+  "title": "Cyber Epidemiology Metrics",
+  "tags": ["cyberepi"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "panels": [
+    {"type": "stat", "title": "Rt", "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0}, "targets": [{"expr": "cyberepi_rt"}]},
+    {"type": "stat", "title": "Attack rate", "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0}, "targets": [{"expr": "cyberepi_attack_rate"}]},
+    {"type": "stat", "title": "Peak prevalence", "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0}, "targets": [{"expr": "cyberepi_peak_prevalence"}]},
+    {"type": "stat", "title": "Queue depth", "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0}, "targets": [{"expr": "cyberepi_queue_depth"}]},
+    {"type": "timeseries", "title": "Simulations", "gridPos": {"h": 8, "w": 24, "x": 0, "y": 4}, "targets": [{"expr": "rate(cyberepi_simulations_total[5m])"}]}
+  ]
+}

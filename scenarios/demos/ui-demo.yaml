@@ -1,0 +1,33 @@
+apiVersion: cyberepi.io/v1
+kind: Scenario
+metadata:
+  name: welcome-lab-demo
+  description: First-run digital outbreak. Illustrative parameters, synthetic population.
+population:
+  template: medium-enterprise
+  size: 400
+  seed: 4
+  name: Welcome Laboratory
+pathogen:
+  type: IdentityStealer
+initial_conditions:
+  infected_entities: 1
+  strategy: random
+model: seidqrp
+controls: {}
+defender:
+  policy: no-response
+simulation:
+  algorithm: gillespie
+  duration: 5d
+  runs: 24
+  seed: 12345
+  event_mode: summary
+  sample_interval: 3h
+variants:
+  - name: Baseline
+    controls: {}
+  - name: Baseline + MFA
+    controls:
+      mfa:
+        coverage: 0.8

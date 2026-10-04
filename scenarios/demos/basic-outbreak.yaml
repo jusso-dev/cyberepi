@@ -1,0 +1,30 @@
+apiVersion: cyberepi.io/v1
+kind: Scenario
+metadata:
+  name: basic-outbreak
+  description: >
+    Reference stochastic outbreak on a synthetic medium enterprise.
+    Parameters are illustrative simulation assumptions.
+population:
+  template: medium-enterprise
+  size: 10000
+  seed: 7
+  name: Synthetic Medium Enterprise
+pathogen:
+  type: IdentityStealer
+initial_conditions:
+  infected_entities: 1
+  strategy: random
+model: seidqrp
+controls: {}
+defender:
+  policy: no-response
+simulation:
+  algorithm: gillespie
+  transmission: clamped-product
+  duration: 7d
+  runs: 1000
+  seed: 123456
+  event_mode: summary
+  sample_interval: 1h
+  extinction_threshold_fraction: 0.005

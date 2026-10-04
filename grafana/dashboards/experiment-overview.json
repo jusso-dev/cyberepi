@@ -1,0 +1,10 @@
+{
+  "uid": "cyberepi-experiments",
+  "title": "Experiment Overview",
+  "tags": ["cyberepi"],
+  "schemaVersion": 39,
+  "panels": [
+    {"type": "stat", "title": "Latest Rt", "gridPos": {"h": 4, "w": 12, "x": 0, "y": 0}, "targets": [{"expr": "cyberepi_rt"}]},
+    {"type": "stat", "title": "Latest infected gauge", "gridPos": {"h": 4, "w": 12, "x": 12, "y": 0}, "targets": [{"expr": "cyberepi_current_infected"}]}
+  ]
+}

@@ -1,0 +1,28 @@
+[package]
+name = "cyberepi-worker"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "cyberepi-worker"
+path = "src/main.rs"
+
+[dependencies]
+epi-core.workspace = true
+epi-orchestrator.workspace = true
+epi-scenario.workspace = true
+anyhow.workspace = true
+async-nats.workspace = true
+axum.workspace = true
+futures-util.workspace = true
+prometheus.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+[lints]
+workspace = true

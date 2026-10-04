@@ -1,0 +1,353 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "cyberepi.fullname" . }}-controller
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "cyberepi.fullname" . }}-worker
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "cyberepi.fullname" . }}-postgres
+spec:
+  serviceName: {{ include "cyberepi.fullname" . }}-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: postgres
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "cyberepi.name" . }}
+        app.kubernetes.io/component: postgres
+    spec:
+      securityContext:
+        fsGroup: 999
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: {{ .Values.postgresql.user | quote }}
+            - name: POSTGRES_DB
+              value: {{ .Values.postgresql.database | quote }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "cyberepi.fullname" . }}-db
+                  key: password
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            {{- toYaml .Values.resources.postgres | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        {{- if .Values.postgresql.storageClass }}
+        storageClassName: {{ .Values.postgresql.storageClass | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.postgresql.storage }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "cyberepi.fullname" . }}-postgres
+spec:
+  selector:
+    app.kubernetes.io/component: postgres
+  ports:
+    - port: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "cyberepi.fullname" . }}-nats
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: nats
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "cyberepi.name" . }}
+        app.kubernetes.io/component: nats
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: nats
+          image: nats:2.11-alpine
+          args: ["-js", "-sd", "/data", "-m", "8222"]
+          ports:
+            - containerPort: 4222
+          securityContext:
+            {{- include "cyberepi.containerSecurity" . | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources.nats | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "cyberepi.fullname" . }}-nats
+spec:
+  selector:
+    app.kubernetes.io/component: nats
+  ports:
+    - name: client
+      port: 4222
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "cyberepi.fullname" . }}-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: controller
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "cyberepi.name" . }}
+        app.kubernetes.io/component: controller
+        cyberepi.io/scrape: "true"
+    spec:
+      serviceAccountName: {{ include "cyberepi.fullname" . }}-controller
+      securityContext:
+        {{- include "cyberepi.security" . | nindent 8 }}
+      containers:
+        - name: controller
+          image: {{ include "cyberepi.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "cyberepi.fullname" . }}-db
+                  key: url
+            - name: NATS_URL
+              value: nats://{{ include "cyberepi.fullname" . }}-nats:4222
+            - name: CYBEREPI_BOOTSTRAP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "cyberepi.fullname" . }}-auth
+                  key: username
+            - name: CYBEREPI_BOOTSTRAP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "cyberepi.fullname" . }}-auth
+                  key: password
+            - name: CYBEREPI_WORKER_REPLICAS
+              value: {{ .Values.worker.replicas | quote }}
+          securityContext:
+            {{- include "cyberepi.containerSecurity" . | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+          resources:
+            {{- toYaml .Values.resources.controller | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "cyberepi.fullname" . }}-controller
+  labels:
+    cyberepi.io/scrape: "true"
+spec:
+  selector:
+    app.kubernetes.io/component: controller
+  ports:
+    - name: http
+      port: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "cyberepi.fullname" . }}-worker
+spec:
+  replicas: {{ .Values.worker.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: worker
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "cyberepi.name" . }}
+        app.kubernetes.io/component: worker
+        cyberepi.io/scrape: "true"
+    spec:
+      serviceAccountName: {{ include "cyberepi.fullname" . }}-worker
+      securityContext:
+        {{- include "cyberepi.security" . | nindent 8 }}
+      containers:
+        - name: worker
+          image: {{ include "cyberepi.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["cyberepi-worker"]
+          ports:
+            - name: metrics
+              containerPort: 9102
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "cyberepi.fullname" . }}-db
+                  key: url
+            - name: NATS_URL
+              value: nats://{{ include "cyberepi.fullname" . }}-nats:4222
+          securityContext:
+            {{- include "cyberepi.containerSecurity" . | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources.worker | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "cyberepi.fullname" . }}-worker
+spec:
+  selector:
+    app.kubernetes.io/component: worker
+  ports:
+    - name: metrics
+      port: 9102
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "cyberepi.fullname" . }}-ui
+spec:
+  replicas: {{ .Values.web.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: ui
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "cyberepi.name" . }}
+        app.kubernetes.io/component: ui
+    spec:
+      securityContext:
+        {{- include "cyberepi.security" . | nindent 8 }}
+      containers:
+        - name: ui
+          image: {{ include "cyberepi.webImage" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 3000
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            {{- toYaml .Values.resources.web | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "cyberepi.fullname" . }}-ui
+spec:
+  selector:
+    app.kubernetes.io/component: ui
+  ports:
+    - name: http
+      port: 3000
+{{- if .Values.ingress.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "cyberepi.fullname" . }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  rules:
+    - host: {{ .Values.ingress.host }}
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "cyberepi.fullname" . }}-controller
+                port:
+                  number: 8080
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "cyberepi.fullname" . }}-ui
+                port:
+                  number: 3000
+{{- end }}
+{{- if .Values.hpa.enabled }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "cyberepi.fullname" . }}-worker
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "cyberepi.fullname" . }}-worker
+  minReplicas: {{ .Values.hpa.minReplicas }}
+  maxReplicas: {{ .Values.hpa.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.hpa.cpu }}
+{{- end }}

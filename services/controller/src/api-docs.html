@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>CyberEpi API</title>
+  <style>
+    body { font: 16px/1.5 "Iowan Old Style", Palatino, serif; margin: 3rem auto; max-width: 42rem; color: #1c1915; background: #f4f0e6; }
+    code { font-family: ui-monospace, monospace; }
+    a { color: #1d4e89; }
+  </style>
+</head>
+<body>
+  <p>CyberEpi</p>
+  <h1>API</h1>
+  <p>The machine-readable description is <a href="/api/v1/openapi.json">OpenAPI 3</a>.</p>
+  <p>Sessions use the <code>cyberepi_session</code> cookie from <code>POST /api/v1/auth/login</code>.</p>
+  <ul>
+    <li><code>POST /api/v1/scenarios</code></li>
+    <li><code>GET /api/v1/scenarios</code></li>
+    <li><code>POST /api/v1/experiments</code></li>
+    <li><code>GET /api/v1/experiments/{id}</code></li>
+    <li><code>POST /api/v1/experiments/{id}/cancel</code></li>
+    <li><code>GET /api/v1/experiments/{id}/results</code></li>
+    <li><code>GET /api/v1/pathogens</code></li>
+    <li><code>GET /api/v1/controls</code></li>
+    <li><code>GET /api/v1/cluster</code></li>
+  </ul>
+  <p>Propagation stays inside the simulator. Nothing on this API attacks a network.</p>
+</body>
+</html>

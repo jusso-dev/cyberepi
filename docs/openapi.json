@@ -1,0 +1,32 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "CyberEpi API",
+    "version": "0.1.0",
+    "description": "Control plane for synthetic cyber-epidemiology experiments. This API does not execute exploits or read secret values."
+  },
+  "paths": {
+    "/api/v1/auth/login": {"post": {"summary": "Create a local session"}},
+    "/api/v1/auth/logout": {"post": {"summary": "End the local session"}},
+    "/api/v1/auth/me": {"get": {"summary": "Current local user"}},
+    "/api/v1/scenarios": {
+      "get": {"summary": "List scenarios"},
+      "post": {"summary": "Store a scenario YAML document"}
+    },
+    "/api/v1/scenarios/validate": {"post": {"summary": "Validate scenario YAML"}},
+    "/api/v1/experiments": {
+      "get": {"summary": "List experiments"},
+      "post": {"summary": "Create an experiment and enqueue simulation batches"}
+    },
+    "/api/v1/experiments/{id}": {"get": {"summary": "Experiment status and summary"}},
+    "/api/v1/experiments/{id}/start": {"post": {"summary": "Start is implied by create; this reports current status"}},
+    "/api/v1/experiments/{id}/cancel": {"post": {"summary": "Cancel a running experiment"}},
+    "/api/v1/experiments/{id}/results": {"get": {"summary": "Epidemiological results"}},
+    "/api/v1/experiments/{id}/export": {"get": {"summary": "Download an experiment bundle"}},
+    "/api/v1/experiments/{id}/charts/epidemic.png": {"get": {"summary": "PNG epidemic curve"}},
+    "/api/v1/pathogens": {"get": {"summary": "Built-in synthetic pathogens"}},
+    "/api/v1/controls": {"get": {"summary": "Illustrative defensive controls"}},
+    "/api/v1/cluster": {"get": {"summary": "Infrastructure cluster status, not the simulated population"}},
+    "/api/v1/ws": {"get": {"summary": "WebSocket progress stream"}}
+  }
+}

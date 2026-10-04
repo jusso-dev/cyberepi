@@ -1,0 +1,9 @@
+{
+  "uid": "cyberepi-throughput",
+  "title": "Simulation Throughput",
+  "tags": ["cyberepi"],
+  "schemaVersion": 39,
+  "panels": [
+    {"type": "timeseries", "title": "Completed simulations", "gridPos": {"h": 8, "w": 24, "x": 0, "y": 0}, "targets": [{"expr": "rate(cyberepi_simulations_total[1m])"}]}
+  ]
+}

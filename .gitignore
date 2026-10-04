@@ -1,0 +1,28 @@
+/target
+**/*.rs.bk
+Cargo.lock.bak
+
+node_modules
+web/.next
+web/out
+web/coverage
+web/tsconfig.tsbuildinfo
+
+.env
+.env.local
+*.pem
+*.key
+
+dist
+tmp
+.DS_Store
+*.log
+
+# Helm
+charts/**/charts
+*.tgz
+
+# Generated local data
+data/
+postgres-data/
+nats-data/

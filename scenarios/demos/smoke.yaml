@@ -1,0 +1,27 @@
+apiVersion: cyberepi.io/v1
+kind: Scenario
+metadata:
+  name: smoke-outbreak
+  description: Small reproducible outbreak used by tests and local smoke checks.
+population:
+  template: small-business
+  size: 80
+  seed: 3
+  name: Synthetic Smoke Organisation
+pathogen:
+  type: IdentityStealer
+initial_conditions:
+  infected_entities: 1
+  strategy: random
+model: seidqrp
+controls: {}
+defender:
+  policy: no-response
+simulation:
+  algorithm: gillespie
+  transmission: clamped-product
+  duration: 2d
+  runs: 8
+  seed: 123456
+  event_mode: summary
+  sample_interval: 2h

@@ -1,0 +1,11 @@
+target
+web/node_modules
+web/.next
+.git
+**/*.md
+!README.md
+.github
+docs
+grafana
+**/tests
+**/*_test.rs

@@ -1,0 +1,79 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/epi-core",
+    "crates/epi-graph",
+    "crates/epi-models",
+    "crates/epi-pathogens",
+    "crates/epi-controls",
+    "crates/epi-metrics",
+    "crates/epi-generator",
+    "crates/epi-simulator",
+    "crates/epi-scenario",
+    "crates/epi-kubernetes",
+    "crates/epi-orchestrator",
+    "cli",
+    "services/controller",
+    "services/worker",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+publish = false
+rust-version = "1.94"
+
+[workspace.dependencies]
+epi-core = { path = "crates/epi-core" }
+epi-graph = { path = "crates/epi-graph" }
+epi-models = { path = "crates/epi-models" }
+epi-pathogens = { path = "crates/epi-pathogens" }
+epi-controls = { path = "crates/epi-controls" }
+epi-metrics = { path = "crates/epi-metrics" }
+epi-generator = { path = "crates/epi-generator" }
+epi-simulator = { path = "crates/epi-simulator" }
+epi-scenario = { path = "crates/epi-scenario" }
+epi-kubernetes = { path = "crates/epi-kubernetes" }
+epi-orchestrator = { path = "crates/epi-orchestrator" }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
+thiserror = "2"
+anyhow = "1"
+tracing = "0.1"
+rand = "0.10"
+rand_chacha = "0.10"
+rayon = "1"
+petgraph = "0.8"
+sha2 = "0.10"
+hex = "0.4"
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "sync", "time", "signal", "fs", "io-util", "net"] }
+axum = { version = "0.8", features = ["ws", "macros", "json"] }
+tower-http = { version = "0.6", features = ["cors", "trace", "limit"] }
+async-nats = "0.50"
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio", "tls-rustls", "postgres", "uuid", "chrono", "json", "migrate", "macros", "derive"] }
+prometheus = "0.14"
+argon2 = "0.5"
+password-hash = "0.5"
+rand_core = { version = "0.6", features = ["std"] }
+image = { version = "0.25", default-features = false, features = ["png"] }
+zip = { version = "2", default-features = false, features = ["deflate"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+futures-util = "0.3"
+tokio-stream = "0.1"
+base64 = "0.22"
+clap = { version = "4", features = ["derive"] }
+schemars = "0.8"
+jsonschema = "0.28"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 16

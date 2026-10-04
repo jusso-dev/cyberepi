@@ -1,0 +1,11 @@
+{
+  "uid": "cyberepi-cluster",
+  "title": "Cluster Overview",
+  "tags": ["cyberepi"],
+  "schemaVersion": 39,
+  "panels": [
+    {"type": "stat", "title": "Worker hint", "gridPos": {"h": 4, "w": 8, "x": 0, "y": 0}, "targets": [{"expr": "cyberepi_worker_count"}]},
+    {"type": "stat", "title": "Active experiments", "gridPos": {"h": 4, "w": 8, "x": 8, "y": 0}, "targets": [{"expr": "cyberepi_active_jobs"}]},
+    {"type": "stat", "title": "Failed batches", "gridPos": {"h": 4, "w": 8, "x": 16, "y": 0}, "targets": [{"expr": "cyberepi_simulations_failed_total"}]}
+  ]
+}

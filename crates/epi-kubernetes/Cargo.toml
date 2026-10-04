@@ -1,0 +1,37 @@
+[package]
+name = "epi-kubernetes"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+epi-core.workspace = true
+epi-graph.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+
+[features]
+default = []
+# Live discovery uses the Kubernetes API with PartialObjectMetadata for secrets.
+live = ["dep:kube", "dep:k8s-openapi", "dep:tokio"]
+
+[dependencies.kube]
+version = "4"
+optional = true
+default-features = false
+features = ["client", "rustls-tls"]
+
+[dependencies.k8s-openapi]
+version = "0.28"
+optional = true
+features = ["v1_32"]
+
+[dependencies.tokio]
+workspace = true
+optional = true
+
+[lints]
+workspace = true

@@ -1,0 +1,103 @@
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  registry: ghcr.io/jusso-dev
+  repository: cyberepi
+  tag: "0.1.0"
+  pullPolicy: IfNotPresent
+
+web:
+  repository: cyberepi-web
+  replicas: 1
+
+worker:
+  replicas: 1
+
+auth:
+  bootstrapUser: admin
+  # Leave empty to generate a password into a Secret on first install.
+  bootstrapPassword: ""
+
+postgresql:
+  enabled: true
+  user: cyberepi
+  database: cyberepi
+  password: ""
+  storage: 8Gi
+  storageClass: ""
+
+nats:
+  storage: 2Gi
+
+prometheus:
+  enabled: true
+  retention: 7d
+  storage: 5Gi
+
+grafana:
+  enabled: true
+
+ingress:
+  enabled: true
+  className: traefik
+  host: cyberepi.local
+
+hpa:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 6
+  cpu: 75
+
+batchJobs:
+  enabled: false
+  maxConcurrentJobs: 4
+  simulationsPerJob: 250
+
+networkPolicy:
+  enabled: true
+
+topologyReader:
+  enabled: true
+
+resources:
+  controller:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: "1"
+      memory: 512Mi
+  worker:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: "2"
+      memory: 2Gi
+  web:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+  postgres:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+  nats:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+podSecurity:
+  runAsNonRoot: true
+  seccompProfile: RuntimeDefault
+  readOnlyRootFilesystem: true
