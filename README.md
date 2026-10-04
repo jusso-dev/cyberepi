@@ -198,7 +198,15 @@ Then, in the browser:
 4. Read R₀, the median outbreak, the epidemic curve, the intervention table, and the superspreader list.
 5. Open a high-degree identity in the contact sample to see type, privilege, criticality, and susceptibility.
 
+![Welcome to the laboratory, with Run demo experiment](docs/images/welcome.png)
+
 The demo scenario is smaller than `basic-outbreak.yaml` so the UI returns without waiting on a 10,000-by-1,000 run. Use the CLI, or submit that YAML from the advanced editor, when you want the reference experiment.
+
+A short-lived proof of concept on a single-node homelab k3s cluster ran that demo: 400 entities, 48 simulations, R₀ 1.82, median outbreak 81, attack rate 20.3%. The install was removed after the screenshots.
+
+![Demo experiment: population, R0, epidemic curve, and superspreaders](docs/images/experiment.png)
+
+![Scenario editor with population, pathogen, and coverage sliders](docs/images/scenario.png)
 
 Scale workers on one machine:
 

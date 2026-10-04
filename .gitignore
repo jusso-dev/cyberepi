@@ -4,6 +4,7 @@ Cargo.lock.bak
 
 node_modules
 web/.next
+e2e/.e2e
 web/out
 web/coverage
 web/tsconfig.tsbuildinfo

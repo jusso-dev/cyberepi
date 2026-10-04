@@ -5,7 +5,8 @@ web/.next
 **/*.md
 !README.md
 .github
-docs
+docs/*
+!docs/openapi.json
 grafana
 **/tests
 **/*_test.rs
